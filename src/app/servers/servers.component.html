@@ -12,4 +12,5 @@
 <input type="text" class="form-control" [(ngModel)]="username">
 <p>{{ username }}</p>
 <button class="btn btn-primary" [disabled]="username === ''" (click)="username = ''">Reset User</button>
-<app-server></app-server>
+<app-server *ngFor="let server of servers"></app-server>
+<app-for-test></app-for-test>
