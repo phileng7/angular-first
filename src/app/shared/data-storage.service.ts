@@ -3,21 +3,27 @@ import { Http, Response } from '../../../node_modules/@angular/http';
 import { RecipeService } from '../recipes/recipe.service';
 import { Recipe } from '../recipes/recipe.model';
 import { map } from 'rxjs/operators';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataStorageService {
 
-  constructor(private http: Http, private recipeService: RecipeService) { }
+  constructor(private http: Http,
+              private recipeService: RecipeService,
+              private authService: AuthService) { }
 
   storeRecipes() {
-    return this.http.put('https://fm-ng-http.firebaseio.com/appName/recipes.json',
+    const token = this.authService.getToken();
+    return this.http.put('https://fm-ng-http.firebaseio.com/appName/recipes.json?auth=' + token,
                     this.recipeService.getRecipes());
   }
 
   getRecipes() {
-    this.http.get('https://fm-ng-http.firebaseio.com/appName/recipes.json')
+    const token = this.authService.getToken();
+
+    this.http.get('https://fm-ng-http.firebaseio.com/appName/recipes.json?auth=' + token)
       .pipe(map(
         (response: Response) => {
           const recipes: Recipe[] = response.json();
@@ -35,5 +41,4 @@ export class DataStorageService {
         }
       );
   }
-
 }
