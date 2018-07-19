@@ -1,32 +1,34 @@
 import { Injectable } from '@angular/core';
-import { Http, Response } from '../../../node_modules/@angular/http';
 import { RecipeService } from '../recipes/recipe.service';
 import { Recipe } from '../recipes/recipe.model';
 import { map } from 'rxjs/operators';
 import { AuthService } from '../auth/auth.service';
+import { HttpClient } from '../../../node_modules/@angular/common/http';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataStorageService {
 
-  constructor(private http: Http,
+  constructor(private httpClient: HttpClient,
               private recipeService: RecipeService,
               private authService: AuthService) { }
 
   storeRecipes() {
     const token = this.authService.getToken();
-    return this.http.put('https://fm-ng-http.firebaseio.com/appName/recipes.json?auth=' + token,
-                    this.recipeService.getRecipes());
+    return this.httpClient.put('https://fm-ng-http.firebaseio.com/appName/recipes.json?auth=' + token,
+                    this.recipeService.getRecipes(), {
+                      observe: 'body'
+                    });
   }
 
   getRecipes() {
     const token = this.authService.getToken();
 
-    this.http.get('https://fm-ng-http.firebaseio.com/appName/recipes.json?auth=' + token)
+    this.httpClient.get<Recipe[]>('https://fm-ng-http.firebaseio.com/appName/recipes.json?auth=' + token)
       .pipe(map(
-        (response: Response) => {
-          const recipes: Recipe[] = response.json();
+        (recipes) => {
           for (const recipe of recipes) {
             if (!recipe['ingredients']) {
               recipe['ingredients'] = [];
